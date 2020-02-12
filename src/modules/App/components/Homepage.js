@@ -2,17 +2,13 @@
 
 import React, { Component } from "react"
 
-import * as Utils from '../../../utils/index'
+import * as Utils from "../../../utils/index"
+import { ColumnChartHoc } from "../../../hoc/ColumnChartHoc"
 
 import "@gooddata/react-components/styles/css/main.css"
 
 import { ColumnChart } from "@gooddata/react-components"
 import { FullContentLayout } from "../../../layouts"
-
-const grossProfitMeasure = "/gdc/md/xms7ga4tf3g3nzucd8380o2bev8oeknp/obj/6877"
-const dateAttributeInMonths =
-  "/gdc/md/xms7ga4tf3g3nzucd8380o2bev8oeknp/obj/2142"
-const dateAttribute = "/gdc/md/xms7ga4tf3g3nzucd8380o2bev8oeknp/obj/2180"
 
 class Homepage extends Component {
   constructor(props) {
@@ -23,51 +19,33 @@ class Homepage extends Component {
     }
   }
 
-  getMonthFilter() {    
+  getMonthFilter() {
     const rangeDays = Utils.commons.rangeDaysInMonth(2016, this.state.currMonth)
 
     return {
       absoluteDateFilter: {
         dataSet: {
-          uri: dateAttribute
+          uri: this.props.dateAttr
         },
         ...rangeDays
       }
     }
   }
 
-  getMeasures() {
-    return [
-      {
-        measure: {
-          localIdentifier: "m1",
-          definition: {
-            measureDefinition: {
-              item: {
-                uri: grossProfitMeasure
-              }
-            }
-          },
-          alias: "$ Gross Profit"
-        }
-      }
-    ]
-  }
-
   getViewBy() {
     return {
       visualizationAttribute: {
         displayForm: {
-          uri: dateAttributeInMonths
+          uri: this.props.dateAttrInMonths
         },
         localIdentifier: "a1"
       }
     }
   }
 
-  renderDropdown(onChangeMonth) {
+  renderDropdown() {
     return (
-      <select defaultValue="1" onChange={e => onChangeMonth(e)}>
+      <select defaultValue="1" onChange={this.onChangeMonth.bind(this)}>
         <option value="1">January</option>
         <option value="2">February</option>
         <option value="3">March</option>
@@ -85,24 +63,19 @@ class Homepage extends Component {
   }
 
   onChangeMonth(e) {
-    debugger
     this.setState({
       currMonth: e.target.value
     })
   }
 
   render() {
-    const projectId = "xms7ga4tf3g3nzucd8380o2bev8oeknp"
+    const { measures, projectId } = this.props
     const filters = [this.getMonthFilter()]
-    const measures = this.getMeasures()
     const viewBy = this.getViewBy()
 
     return (
       <FullContentLayout className="App">
-        <h1>
-          $ Gross Profit in month{" "}
-          {this.renderDropdown(e => this.onChangeMonth(e))} 2016
-        </h1>
+        <h1>$ Gross Profit in month {this.renderDropdown()} 2016</h1>
         <div>
           <ColumnChart
             measures={measures}
@@ -123,4 +96,4 @@ class Homepage extends Component {
   }
 }
 
-export default Homepage
+export default ColumnChartHoc(Homepage)
